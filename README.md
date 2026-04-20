@@ -531,6 +531,14 @@ The following questions cover filesystem concepts beyond the implementation scop
 
 **Q5.1:** A branch in Git is just a file in `.git/refs/heads/` containing a commit hash. Creating a branch is creating a file. Given this, how would you implement `pes checkout <branch>` — what files need to change in `.pes/`, and what must happen to the working directory? What makes this operation complex?
 
+### Ans 5.1
+To implement `pes checkout <branch>`, I would do three things:
+1. Validate the branch exists in `.pes/refs/heads/<branch>`.
+2. Update `.pes/HEAD` to point to `ref: refs/heads/<branch>`.
+3. Read the commit hash from that branch, load its root tree, and rewrite the working directory to match that snapshot (create/update/delete files as needed).
+
+The tricky part is not updating HEAD; it is safely changing the working directory. You have to avoid deleting user changes, handle nested trees correctly, and make sure index + working directory + HEAD all end up consistent.
+
 **Q5.2:** When switching branches, the working directory must be updated to match the target branch's tree. If the user has uncommitted changes to a tracked file, and that file differs between branches, checkout must refuse. Describe how you would detect this "dirty working directory" conflict using only the index and the object store.
 
 **Q5.3:** "Detached HEAD" means HEAD contains a commit hash directly instead of a branch reference. What happens if you make commits in this state? How could a user recover those commits?
