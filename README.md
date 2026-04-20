@@ -562,6 +562,18 @@ Recovery is simple if you know the commit hash: create a new branch pointing to 
 
 **Q6.1:** Over time, the object store accumulates unreachable objects — blobs, trees, or commits that no branch points to (directly or transitively). Describe an algorithm to find and delete these objects. What data structure would you use to track "reachable" hashes efficiently? For a repository with 100,000 commits and 50 branches, estimate how many objects you'd need to visit.
 
+### Ans 6.1
+I would use a classic mark-and-sweep approach:
+1. Start from all branch heads in `.pes/refs/heads/*` as roots.
+2. Traverse reachable commits via parent links.
+3. From each commit, mark its tree.
+4. Recursively mark all subtree and blob objects referenced by trees.
+5. After marking, scan `.pes/objects` and delete anything unmarked.
+
+For fast lookup, use a hash set of object IDs (`reachable`).
+
+For 100,000 commits and 50 branches, commit traversal is usually near 100,000 unique commits (branches share history). Total visited objects could be a few hundred thousand when trees and blobs are included, depending on project size and change frequency.
+
 **Q6.2:** Why is it dangerous to run garbage collection concurrently with a commit operation? Describe a race condition where GC could delete an object that a concurrent commit is about to reference. How does Git's real GC avoid this?
 
 ---
