@@ -541,6 +541,16 @@ The tricky part is not updating HEAD; it is safely changing the working director
 
 **Q5.2:** When switching branches, the working directory must be updated to match the target branch's tree. If the user has uncommitted changes to a tracked file, and that file differs between branches, checkout must refuse. Describe how you would detect this "dirty working directory" conflict using only the index and the object store.
 
+### Ans 4.2
+I would detect conflicts by comparing three versions of each tracked path:
+1. Version in current HEAD tree (baseline).
+2. Version in target branch tree (what checkout wants to write).
+3. Current working directory state (using index metadata/hash checks).
+
+If a file is modified in working directory relative to index/HEAD, and that same file would also change when moving to target branch, that is a conflict and checkout should stop.
+
+In short: if file is dirty locally and target branch wants a different content for that path, refuse checkout.
+
 **Q5.3:** "Detached HEAD" means HEAD contains a commit hash directly instead of a branch reference. What happens if you make commits in this state? How could a user recover those commits?
 
 ### Garbage Collection and Space Reclamation
