@@ -553,6 +553,11 @@ In short: if file is dirty locally and target branch wants a different content f
 
 **Q5.3:** "Detached HEAD" means HEAD contains a commit hash directly instead of a branch reference. What happens if you make commits in this state? How could a user recover those commits?
 
+### Ans 5.3
+In detached HEAD, new commits are still created normally, but no branch name moves forward with them. So those commits can become hard to find later.
+
+Recovery is simple if you know the commit hash: create a new branch pointing to it, like `git branch rescued <hash>` (or equivalent in PES). If you realize late, reflog-style history (if implemented) helps find that commit again.
+
 ### Garbage Collection and Space Reclamation
 
 **Q6.1:** Over time, the object store accumulates unreachable objects — blobs, trees, or commits that no branch points to (directly or transitively). Describe an algorithm to find and delete these objects. What data structure would you use to track "reachable" hashes efficiently? For a repository with 100,000 commits and 50 branches, estimate how many objects you'd need to visit.
